@@ -81,7 +81,7 @@ func MapToXMLString(data map[string]string) string {
 	return buf.String()
 }
 
-func MakeSign(params map[string]string) string {
+func ToURLParams(params map[string]string) string {
 	keys := []string{}
 	for k, _ := range params {
 		keys = append(keys, k)
@@ -101,6 +101,10 @@ func MakeSign(params map[string]string) string {
 		}
 	}
 	return buf.String()
+}
+
+func MakeSign()  {
+	
 }
 
 func (this *WxPaymentSigned) Signed() {
