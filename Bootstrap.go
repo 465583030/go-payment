@@ -19,5 +19,5 @@ func main()  {
 	datas["age"] = "90"
 	datas["huge"] = "huge"
 	fmt.Println(payment.MapToXMLString(datas))
-	fmt.Println(payment.ToURLParams(datas))
+	fmt.Println(payment.MakeSign(datas))
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"bytes"
 	"sort"
+	"crypto/md5"
 )
 
 // 参考官方文档：
@@ -60,6 +61,7 @@ func (this *WxPaymentSigned) unifiedorder() {
 	presignData["spbill_create_ip"] = this.createIp
 	presignData["total_fee"] = strconv.Itoa(this.fee)
 	presignData["trade_type"] = this.tradeType
+	presignData["key"] = this.appKey
 	for k, v := range presignData {
 		fmt.Println(fmt.Sprintf("key: %s; value:%s\n", k, v))
 	}
@@ -103,8 +105,10 @@ func ToURLParams(params map[string]string) string {
 	return buf.String()
 }
 
-func MakeSign()  {
-	
+func MakeSign(params map[string]string) string {
+	presignString := ToURLParams(params)
+	bytes := md5.Sum([]byte(presignString))
+	return fmt.Sprintf("%x", bytes)
 }
 
 func (this *WxPaymentSigned) Signed() {
