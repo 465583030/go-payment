@@ -3,6 +3,8 @@ package payment
 import (
 	"strconv"
 	"fmt"
+	"bytes"
+	"sort"
 )
 
 // 参考官方文档：
@@ -49,35 +51,56 @@ func NewWxPaymentSigned(appId string, appKey string, mchId string, nonceStr stri
 func (this *WxPaymentSigned) unifiedorder() {
 	presignData := make(map[string]string)
 	presignData["appid"] = this.appId
+	presignData["attach"] = this.attach
+	presignData["body"] = this.body
 	presignData["mch_id"] = this.mchId
 	presignData["nonce_str"] = this.nonceStr
-	presignData["body"] = this.body
-	presignData["out_trade_no"] = this.outTradeNo
-	presignData["total_fee"] = strconv.Itoa(this.fee)
-	presignData["spbill_create_ip"] = this.createIp
 	presignData["notify_url"] = this.notifyUrl
+	presignData["out_trade_no"] = this.outTradeNo
+	presignData["spbill_create_ip"] = this.createIp
+	presignData["total_fee"] = strconv.Itoa(this.fee)
 	presignData["trade_type"] = this.tradeType
-	presignData["attach"] = this.attach
-
 	for k, v := range presignData {
 		fmt.Println(fmt.Sprintf("key: %s; value:%s\n", k, v))
 	}
 }
 
-func mapToXMLString(data map[string]string) string {
-	xmlString := "<xml>"
+func MapToXMLString(data map[string]string) string {
+	var buf bytes.Buffer
+	buf.WriteString("<xml>")
 	for key, value := range data {
-		xmlString += "<" + key + "><![CDATA[" + value + "]]></" + key + ">"
+		buf.WriteString("<")
+		buf.WriteString(key)
+		buf.WriteString("><![CDATA[")
+		buf.WriteString(value)
+		buf.WriteString("]]></")
+		buf.WriteString(key)
+		buf.WriteString(">")
 	}
-	xmlString += "</xml>"
-	return xmlString
+	buf.WriteString("</xml>")
+	return buf.String()
 }
 
-func makeSign(params map[string]string) {
+func MakeSign(params map[string]string) string {
 	keys := []string{}
 	for k, _ := range params {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
+	endMark := keys[len(keys)-1]
+	fmt.Println(endMark)
+	var buf bytes.Buffer
+	equal := "="
+	and := "&"
+	for _, key := range keys {
+		buf.WriteString(key)
+		buf.WriteString(equal)
+		buf.WriteString(params[key])
+		if key != endMark {
+			buf.WriteString(and)
+		}
+	}
+	return buf.String()
 }
 
 func (this *WxPaymentSigned) Signed() {
