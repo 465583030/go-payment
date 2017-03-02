@@ -1,1 +1,13 @@
-package go_payment
+package main
+
+type Bootstrap struct {
+	
+}
+
+func (this *Bootstrap) Start()  {
+	
+}
+
+func main()  {
+	
+}
