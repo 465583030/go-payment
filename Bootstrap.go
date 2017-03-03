@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/cplusgo/go-payment/payment"
+	"github.com/cplusgo/go-payment/helper"
 )
 
 type Bootstrap struct {
@@ -18,6 +18,9 @@ func main()  {
 	datas["name"] = "hello"
 	datas["age"] = "90"
 	datas["huge"] = "huge"
-	fmt.Println(payment.MapToXMLString(datas))
-	fmt.Println(payment.MakeSign(datas))
+	datas["msg"] = "你的天"
+	fmt.Println(helper.MapToXMLString(datas))
+	fmt.Println(helper.MakeSign(datas))
+
+	fmt.Println(helper.TimeMd5())
 }

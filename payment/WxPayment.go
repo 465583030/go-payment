@@ -3,9 +3,6 @@ package payment
 import (
 	"strconv"
 	"fmt"
-	"bytes"
-	"sort"
-	"crypto/md5"
 )
 
 // 参考官方文档：
@@ -67,49 +64,7 @@ func (this *WxPaymentSigned) unifiedorder() {
 	}
 }
 
-func MapToXMLString(data map[string]string) string {
-	var buf bytes.Buffer
-	buf.WriteString("<xml>")
-	for key, value := range data {
-		buf.WriteString("<")
-		buf.WriteString(key)
-		buf.WriteString("><![CDATA[")
-		buf.WriteString(value)
-		buf.WriteString("]]></")
-		buf.WriteString(key)
-		buf.WriteString(">")
-	}
-	buf.WriteString("</xml>")
-	return buf.String()
-}
 
-func ToURLParams(params map[string]string) string {
-	keys := []string{}
-	for k, _ := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	endMark := keys[len(keys)-1]
-	fmt.Println(endMark)
-	var buf bytes.Buffer
-	equal := "="
-	and := "&"
-	for _, key := range keys {
-		buf.WriteString(key)
-		buf.WriteString(equal)
-		buf.WriteString(params[key])
-		if key != endMark {
-			buf.WriteString(and)
-		}
-	}
-	return buf.String()
-}
-
-func MakeSign(params map[string]string) string {
-	presignString := ToURLParams(params)
-	bytes := md5.Sum([]byte(presignString))
-	return fmt.Sprintf("%x", bytes)
-}
 
 func (this *WxPaymentSigned) Signed() {
 	presignData := make(map[string]string)
