@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"io/ioutil"
 	"unsafe"
+	"time"
+	"encoding/json"
 )
 
 // 参考官方文档:
@@ -52,8 +54,8 @@ func NewWxPaymentSigned(appId string, appKey string, mchId string, nonceStr stri
 	return payment
 }
 
-//已经验证过
-func (this *WxPaymentSigned) Unifiedorder() {
+//已经验证过,这一步的作用是拿到预支付交易会话ID,即prepayid
+func (this *WxPaymentSigned) Unifiedorder() string {
 	presignData := make(map[string]string)
 	presignData["appid"] = this.appId
 	presignData["attach"] = this.attach
@@ -76,22 +78,36 @@ func (this *WxPaymentSigned) Unifiedorder() {
 	fmt.Println(xml)
 	reader := bytes.NewReader([]byte(xml))
 	resp, err := http.Post(wxUnifiedorderURL, "application/xml", reader)
+	var respXmlString string
 	if err == nil {
 		respBytes, respErr := ioutil.ReadAll(resp.Body)
 		if respErr == nil {
-			fmt.Println(*(*string)(unsafe.Pointer(&respBytes)))
+			respXmlString = *(*string)(unsafe.Pointer(&respBytes))
+			fmt.Println(respXmlString)
 		}
 	}
+	return respXmlString
 }
 
-func (this *WxPaymentSigned) Signed() {
+//在统一下单接口执行完毕之后会返回一个关键的数据,prepayid
+func (this *WxPaymentSigned) Signed(prepayid string) []byte {
+	timestamp := strconv.Itoa(int(time.Now().Unix()))
 	presignData := make(map[string]string)
 	presignData["appid"] = this.appId
 	presignData["partnerid"] = this.mchId
-	presignData["prepayid"] = this.nonceStr
-	presignData["package"] = this.body
-	presignData["noncestr"] = this.outTradeNo
-	presignData["timestamp"] = strconv.Itoa(this.fee)
+	presignData["prepayid"] = prepayid
+	presignData["package"] = "Sign=WXPay"
+	presignData["noncestr"] = helper.MD5(timestamp)
+	presignData["timestamp"] = timestamp
+
+	params := helper.ToURLParamsSortByKey(presignData)
+	var buf bytes.Buffer
+	buf.WriteString(params)
+	buf.WriteString("&key=")
+	buf.WriteString(this.appKey)
+	presignData["sign"] = helper.MD5(buf.String())
+	jsonBody, _ := json.Marshal(presignData)
+	return jsonBody
 }
 
 type WxPaymentNotify struct {
