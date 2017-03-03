@@ -23,4 +23,7 @@ func main()  {
 	fmt.Println(helper.MakeSign(datas))
 
 	fmt.Println(helper.TimeMd5())
+
+	str := "Yes I do"
+	fmt.Println(helper.Base64(str))
 }

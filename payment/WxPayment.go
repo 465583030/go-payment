@@ -64,8 +64,6 @@ func (this *WxPaymentSigned) unifiedorder() {
 	}
 }
 
-
-
 func (this *WxPaymentSigned) Signed() {
 	presignData := make(map[string]string)
 	presignData["appid"] = this.appId

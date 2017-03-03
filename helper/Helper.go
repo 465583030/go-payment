@@ -8,6 +8,7 @@ import (
 	"crypto/md5"
 	"time"
 	"strconv"
+	"encoding/base64"
 )
 
 func TimeMd5() string {
@@ -16,6 +17,10 @@ func TimeMd5() string {
 	bytes := md5.Sum([]byte(stamp))
 	md5String := fmt.Sprintf("%x", bytes)
 	return md5String
+}
+
+func Base64(str string) string {
+	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
 func UnixSeconds() int64 {
