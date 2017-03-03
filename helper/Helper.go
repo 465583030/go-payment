@@ -11,14 +11,17 @@ import (
 )
 
 func TimeMd5() string {
-	t := time.Now()
-	timestamp := t.Unix()
-	log.Println(timestamp)
+	timestamp := UnixSeconds()
 	stamp := strconv.Itoa(int(timestamp))
 	bytes := md5.Sum([]byte(stamp))
 	md5String := fmt.Sprintf("%x", bytes)
-	fmt.Println(md5String)
 	return md5String
+}
+
+func UnixSeconds() int64 {
+	t := time.Now()
+	timestamp := t.Unix()
+	return timestamp
 }
 
 func MapToXMLString(data map[string]string) string {
