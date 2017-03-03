@@ -1,29 +1,26 @@
 package main
 
 import (
-	"fmt"
+	"github.com/cplusgo/go-payment/payment"
 	"github.com/cplusgo/go-payment/helper"
 )
 
-type Bootstrap struct {
-	
-}
-
-func (this *Bootstrap) Start()  {
-	
-}
-
 func main()  {
-	datas := make(map[string]string)
-	datas["name"] = "hello"
-	datas["age"] = "90"
-	datas["huge"] = "huge"
-	datas["msg"] = "你的天"
-	fmt.Println(helper.MapToXMLString(datas))
-	fmt.Println(helper.MakeSign(datas))
-
-	fmt.Println(helper.TimeMd5())
-
-	str := "Yes I do"
-	fmt.Println(helper.Base64(str))
+	appId := "appId"
+	appKey := "appKey"
+	mchId := "mchId"
+	wxSigned := payment.NewWxPaymentSigned(
+		appId,
+		appKey,
+		mchId,
+		helper.MD5("Hello"),
+		"Body",
+		"Hello",
+		100,
+		"http://payment.example.com/notify",
+		"98",
+		"111.121.30.166",
+		"APP",
+		"ziyun")
+	wxSigned.Unifiedorder()
 }

@@ -11,6 +11,12 @@ import (
 	"encoding/base64"
 )
 
+func MD5(origin string) string {
+	bytes := md5.Sum([]byte(origin))
+	md5String := fmt.Sprintf("%x", bytes)
+	return md5String
+}
+
 func TimeMd5() string {
 	timestamp := UnixSeconds()
 	stamp := strconv.Itoa(int(timestamp))
