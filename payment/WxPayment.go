@@ -1,15 +1,16 @@
 package payment
 
 import (
-	"strconv"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/cplusgo/go-payment/helper"
-	"bytes"
-	"net/http"
 	"io/ioutil"
-	"unsafe"
+	"net/http"
+	"strconv"
 	"time"
-	"encoding/json"
+	"unsafe"
+	"encoding/xml"
 )
 
 // 参考官方文档:
@@ -17,6 +18,32 @@ import (
 // 调起支付:https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_12&index=2
 
 const wxUnifiedorderURL string = "https://api.mch.weixin.qq.com/pay/unifiedorder"
+
+/**
+<xml>
+   <return_code><![CDATA[SUCCESS]]></return_code>
+   <return_msg><![CDATA[OK]]></return_msg>
+   <appid><![CDATA[wx2421b1c4370ec43b]]></appid>
+   <mch_id><![CDATA[10000100]]></mch_id>
+   <nonce_str><![CDATA[IITRi8Iabbblz1Jc]]></nonce_str>
+   <sign><![CDATA[7921E432F65EB8ED0CE9755F0E86D72F]]></sign>
+   <result_code><![CDATA[SUCCESS]]></result_code>
+   <prepay_id><![CDATA[wx201411101639507cbf6ffd8b0779950874]]></prepay_id>
+   <trade_type><![CDATA[APP]]></trade_type>
+</xml>
+*/
+
+type UnifiedorderResult struct {
+	ReturnCode string `xml:"return_code"`
+	ReturnMsg  string `xml:"return_msg"`
+	AppId      string `xml:"appid"`
+	MchId      string `xml:"mch_id"`
+	NonceStr   string `xml:"nonce_str"`
+	Sign       string `xml:"sign"`
+	ResultCode string `xml:"result_code"`
+	PrepayId   string `xml:"prepay_id"`
+	TradeType  string `xml:"trade_type"`
+}
 
 type WxPaymentSigned struct {
 	appId      string
@@ -32,7 +59,6 @@ type WxPaymentSigned struct {
 	tradeType  string
 	attach     string
 }
-
 
 func NewWxPaymentSigned(appId string, appKey string, mchId string, nonceStr string, body string,
 	desc string, fee int, notifyUrl string, outTradeNo string, createIp string,
@@ -74,18 +100,22 @@ func (this *WxPaymentSigned) Unifiedorder() string {
 	buf.WriteString(this.appKey)
 	params = buf.String()
 	presignData["sign"] = helper.MD5(params)
-	xml := helper.MapToXMLString(presignData)
-	fmt.Println(xml)
-	reader := bytes.NewReader([]byte(xml))
+	xmlString := helper.MapToXMLString(presignData)
+	fmt.Println(xmlString)
+	reader := bytes.NewReader([]byte(xmlString))
 	resp, err := http.Post(wxUnifiedorderURL, "application/xml", reader)
 	var respXmlString string
+	var result UnifiedorderResult
 	if err == nil {
 		respBytes, respErr := ioutil.ReadAll(resp.Body)
 		if respErr == nil {
 			respXmlString = *(*string)(unsafe.Pointer(&respBytes))
 			fmt.Println(respXmlString)
+			xml.Unmarshal(respBytes, &result)
 		}
 	}
+	fmt.Println(result.PrepayId)
+
 	return respXmlString
 }
 

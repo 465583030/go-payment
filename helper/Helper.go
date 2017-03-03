@@ -1,14 +1,14 @@
 package helper
 
 import (
-	"sort"
-	"fmt"
 	"bytes"
-	"log"
 	"crypto/md5"
-	"time"
-	"strconv"
 	"encoding/base64"
+	"fmt"
+	"log"
+	"sort"
+	"strconv"
+	"time"
 )
 
 func MD5(origin string) string {

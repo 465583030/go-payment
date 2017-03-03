@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/cplusgo/go-payment/payment"
 	"github.com/cplusgo/go-payment/helper"
+	"github.com/cplusgo/go-payment/payment"
 )
 
-func main()  {
+func main() {
 	appId := "appId"
 	appKey := "appKey"
 	mchId := "mchId"
